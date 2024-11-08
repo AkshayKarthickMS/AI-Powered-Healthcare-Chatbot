@@ -18,11 +18,11 @@ Our healthcare chatbot platform is built to assist healthcare professionals by p
 
 This approach offers value to healthcare providers by automating routine inquiries and provides patients with easy access to expert advice in a budget-friendly model.
 
-## Project Architecture
+## Business Architecture
 
 ![Architecture Diagram](images/architecture.png)
 
-> **Architecture Explanation**: The chatbot application follows a structured approach:
+> **Project Architecture Explanation**: The chatbot application follows a structured approach:
 > - **Frontend**: User interactions are handled through a responsive UI.
 > - **Backend (Flask)**: Manages routing, authentication, data processing, chat history, and user sessions.
 > - **Database (SQLite3)**: Stores user data and chat histories.
