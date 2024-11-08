@@ -14,7 +14,7 @@ The Medical Chatbot Platform is designed to revolutionize healthcare communicati
 
 **Architecture**:
 
-![Medical Chatbot Architecture](AI-Powered-Healthcare-Chatbot/images/architecture.png)
+![Medical Chatbot Architecture](images/architecture.png)
 
 Our system follows a comprehensive architectural design that ensures efficient data flow and service delivery:
 
