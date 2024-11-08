@@ -1,190 +1,125 @@
-# Medical Chatbot Platform
 
-A sophisticated healthcare chatbot platform that enables seamless communication between patients and healthcare providers. Built with Flask and powered by the LLaMA 3.2 3B model, this platform offers both free and premium services for medical consultations.
+# AI-Powered Healthcare Chatbot
 
-**Introduction**
+An advanced AI-driven healthcare chatbot designed to offer real-time medical assistance, powered by the LLaMA model. This project uses Python Flask for the backend, SQLite3 for database management, and HTML, CSS, and JavaScript for the frontend. The chatbot supports multiple languages, stores conversation histories, and maintains separate sessions for each user.
 
-The Medical Chatbot Platform is designed to revolutionize healthcare communication by providing an AI-powered interface for medical consultations. It offers:
+## Business Idea
 
-- Free basic medical query services
-- Premium multi-language support
-- Dedicated doctor portal for patient data management
-- Secure conversation history tracking
-- Fine-tuned responses using LLaMA 3.2 3B model
+Our healthcare chatbot platform is built to assist healthcare professionals by providing a basic chatbot service with free and premium tiers. The business model includes:
 
-**Architecture**:
+- **Data Collection and Chatbot Creation**: We gather datasets from medical experts and create a basic, free-to-use chatbot tailored to their field.
+- **Free and Premium Features**:
+  - **Free Plan**: Offers essential chatbot functionality to address patient queries.
+  - **Premium Features**: Doctors can upgrade to premium features, such as multi-language support, multimedia support, and extended capabilities to provide a more comprehensive digital interaction.
+- **Patient Billing and Platform Fees**:
+  - **Limited Free Queries**: Patients can initially ask a certain number of queries for free.
+  - **Pay-As-You-Go Model**: After the free limit, patients pay a nominal fee per query, billed monthly at a significantly lower rate than traditional doctor consultation fees.
+  - **Platform Fee**: A platform fee is charged for patients to use this AI-driven interaction, offering them professional medical advice at an affordable rate.
 
-![Medical Chatbot Architecture](images/architecture.png)
+This approach offers value to healthcare providers by automating routine inquiries and provides patients with easy access to expert advice in a budget-friendly model.
 
-Our system follows a comprehensive architectural design that ensures efficient data flow and service delivery:
+## Project Architecture
 
-### Data Flow Components
+![Architecture Diagram](images/architecture.png)
 
-1. **Data Collection from Doctors**
-   - Secure input system for medical knowledge
-   - Validation and verification protocols
-   - Regular updates to medical information database
-   - Quality assurance checks by medical professionals
+> **Architecture Explanation**: The chatbot application follows a structured approach:
+> - **Frontend**: User interactions are handled through a responsive UI.
+> - **Backend (Flask)**: Manages routing, authentication, data processing, chat history, and user sessions.
+> - **Database (SQLite3)**: Stores user data and chat histories.
+> - **AI Model (LLaMA via LM Studio)**: Processes user queries and provides responses.
+> - **Ngrok**: Exposes the local server to the web, enabling remote access.
 
-2. **Medical Inquiry Response System**
-   - Advanced natural language processing
-   - Context-aware response generation
-   - Medical terminology integration
-   - Symptom analysis and preliminary diagnosis support
+## Features
 
-3. **Patient Access Layer**
-   - Bifurcated into two service tiers:
-     - Limited Free Conversations
-     - Paid Conversations
-   - User authentication and session management
-   - Access control and usage tracking
+- **AI-Powered Responses**: Intelligent responses to healthcare queries.
+- **Multi-Language Support** (Premium): For seamless interactions in multiple languages.
+- **Session Management**: Unique sessions for privacy.
+- **Conversation History**: Stores chat histories for context.
+- **Secure User Authentication**: Login, registration, and logout.
+- **Responsive Frontend**: Modern, user-friendly interface.
 
-4. **API Integration for Websites**
-   - RESTful API endpoints
-   - Webhook support for real-time integration
-   - Cross-platform compatibility
-   - Secure data transmission protocols
+## Project Structure
 
-### Service Tiers:
-
-#### Free Features:
-- Basic medical query handling
-- Standard response times
-- Limited conversation history
-- Basic symptom checking
-- General health information access
-
-#### Premium Features:
-- Multi-language support
-- Priority response queuing
-- Extended conversation history
-- Detailed medical analysis
-- Custom integration options
-- Advanced symptom analysis
-- Specialist consultation routing
-- Comprehensive health tracking
-
-### Integration Capabilities:
-
-The architecture supports seamless integration with:
-- Hospital management systems
-- Electronic Health Records (EHR)
-- Medical practice websites
-- Healthcare apps
-- Third-party medical services
-
-### Security and Compliance:
-
-- End-to-end encryption
-- HIPAA compliance measures
-- Data anonymization
-- Regular security audits
-- Access control mechanisms
-
-## Key Technologies:
-
-- **Backend Framework**: Flask (Python)
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Database**: SQLite (chatbot.db)
-- **AI Model**: LLaMA 3.2 3B (fine-tuned)
-- **Model Deployment**: [LM Studio](https://lmstudio.ai/) & Render
-- **Authentication**: Werkzeug Security
-- **Version Control**: Git
-
-## Features:
-
-### For Patients
-- User registration and authentication
-- Real-time medical consultations
-- Chat history preservation
-- Message regeneration capability
-- Free basic services
-
-### Premium Features:
-- Multi-language support
-- Priority response timing
-- Extended consultation duration
-- Comprehensive medical history analysis
-
-### For Doctors:
-- Dedicated dashboard
-- Patient data visualization
-- Free trial period
-- Usage-based billing system
-- Historical data analysis
-
-## Project Structure:
-
-```
-medical-chatbot/
-├── app.py              # Main Flask application
-├── requirements.txt    # Project dependencies
-├── static/
-│   ├── script.js      # Frontend functionality
-│   └── styles.css     # UI styling
-├── templates/
-│   └── index.html     # Main application template
-└── chatbot.db         # SQLite database
+```plaintext
+/healthcare-chatbot
+│
+├── app.py                # Flask application and backend logic
+├── /templates/           # HTML templates for the frontend
+│   └── index.html
+├── /static/              # Static files (CSS, JS)
+│   ├── styles.css        # Styling for the chatbot interface
+│   └── scripts.js        # JavaScript for frontend interaction
+├── chatbot.db            # SQLite3 database for user and chat history
+└── requirements.txt      # Dependencies for the project
 ```
 
-## File Descriptions
+## Setup
 
-### `app.py`
-- Flask application setup
-- Database initialization and management
-- User authentication system
-- Chat routing and message handling
-- Model integration with LLaMA 3.2 3B
-- API endpoint definitions
+### 1. Clone the Repository
 
-### `script.js`
-- User interface interactions
-- Real-time chat functionality
-- Message regeneration handling
-- Authentication form management
-- Chat history loading
-- Dynamic UI updates
+```bash
+git clone https://github.com/your-username/healthcare-chatbot.git
+cd healthcare-chatbot
+```
 
-### `styles.css`
-- Responsive design implementation
-- Chat interface styling
-- Message bubble designs
-- Form styling
-- Animation effects
-- Color scheme management
+### 2. Install Dependencies
 
-### `index.html`
-- Main application structure
-- Chat interface layout
-- Authentication forms
-- Responsive components
-- Dynamic content areas
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+pip install -r requirements.txt
+```
 
- **Installation:**
+### 3. Set Up the Database
 
-1. Clone the repository:
-    - git clone https://github.com/yourusername/medical-chatbot.git
-    - cd medical-chatbot
+```bash
+python
+from app import init_db
+init_db()
+exit()
+```
 
-2. Install dependencies:
-    - pip install -r requirements.txt
+### 4. Set Up LM Studio
 
-3. Set up LM Studio:
-    - Download and Install LM Studio: Download LM Studio from here and install it on your system.
-    - Load LLaMA Model: Set up the LLaMA model in LM Studio and make sure it’s configured to handle inference requests.
-    - Expose Local Model via Ngrok: Use Ngrok to make your model accessible over the web. Start Ngrok and note the public URL.
+1. Download LM Studio from [here](https://www.lmstudio.com/).
+2. Load the LLaMA model in LM Studio and configure it for inference.
+3. Use Ngrok to make the model accessible:
 
-4. Initialize the database:
-    >>> from app import init_db
-    >>> init_db()
+```bash
+ngrok http 5000
+```
 
-5. Start the application:
-    - python app.py
+### 5. Run the Application
 
+```bash
+python app.py
+```
 
- **Contact:**
+## API Endpoints
 
-For any queries, please raise an issue or contact: 
-AKSHAY KARTHICK MS - +91 9500964663
-NARESH KUMAR P -  +91 8072912033
-RISHIKESH P - +91 9791540420
+- **`/login`** - User login with credentials.
+- **`/register`** - Register a new user.
+- **`/chat`** - Send a message and receive an AI response.
+- **`/new_chat`** - Start a new conversation.
+- **`/get_chat_history`** - Retrieve chat history.
+- **`/logout`** - Log out the user.
+
+## Technologies Used
+
+- **Python & Flask**: Backend API and processing.
+- **SQLite3**: Stores user data and chat histories.
+- **LLaMA Model**: AI model for generating responses.
+- **Ngrok**: Makes the local model server public.
+- **Frontend**: HTML, CSS, JavaScript for UI.
+
+## Contributing
+
+Contributions are welcome! Fork, create a branch, and open a pull request.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contact
+
+For inquiries, reach out to [akshaykarthick486@gmail.com].
