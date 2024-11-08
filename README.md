@@ -170,9 +170,9 @@ medical-chatbot/
     - pip install -r requirements.txt
 
 3. Set up LM Studio:
-   - Download [LM Studio](https://lmstudio.ai/)
-   - Load the LLaMA 3.2 3B model
-   - Configure the model settings as specified in app.py
+    - Download and Install LM Studio: Download LM Studio from here and install it on your system.
+    - Load LLaMA Model: Set up the LLaMA model in LM Studio and make sure it’s configured to handle inference requests.
+    - Expose Local Model via Ngrok: Use Ngrok to make your model accessible over the web. Start Ngrok and note the public URL.
 
 4. Initialize the database:
     >>> from app import init_db
