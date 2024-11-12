@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this to a secure secret key
 
-MODEL_URL = "https://15b0-2401-4900-67b5-77a2-6c0e-e94a-c4e9-95ca.ngrok-free.app/v1/chat/completions"
+MODEL_URL = "https://9aae-2409-40f4-2058-59d-b580-c269-fc37-9c35.ngrok-free.app/v1/chat/completions"
 
 def init_db():
     if not os.path.exists('chatbot.db'):
