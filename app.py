@@ -10,7 +10,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this to a secure secret key
 
-MODEL_URL = "https://14b7-2409-40f4-300b-4b62-4177-87a-78de-1eb.ngrok-free.app/v1/chat/completions"
+MODEL_URL = "https://15b0-2401-4900-67b5-77a2-6c0e-e94a-c4e9-95ca.ngrok-free.app/v1/chat/completions"
 
 def init_db():
     if not os.path.exists('chatbot.db'):
@@ -198,18 +198,19 @@ def chat():
 
     data = request.get_json()
     user_input = data.get('message')
-    chat_id = data.get('chatId')
+    chat_id = data.get('chatId') or session.get('current_chat_id')
     
     # Get or create conversation history
     conn = sqlite3.connect('chatbot.db')
     cursor = conn.cursor()
     
     if not chat_id:
-        # Create new chat
+        # New chat
         chat_id = str(uuid4())
+        session['current_chat_id'] = chat_id
         conversation_history = []
     else:
-        # Get existing chat
+        # Fetch existing conversation history for this chat_id
         cursor.execute("""
             SELECT messages 
             FROM chats 
@@ -217,16 +218,35 @@ def chat():
         """, (session['user_id'], chat_id))
         result = cursor.fetchone()
         conversation_history = json.loads(result[0]) if result else []
-    
+
     # Get the response from the model
     reply = chat_with_model(user_input, conversation_history)
     
-    # Save the updated conversation
+    # Save the updated conversation history
     title = user_input[:30] + "..." if len(user_input) > 30 else user_input
+
+    # Check if chat already exists
     cursor.execute("""
-        INSERT OR REPLACE INTO chats (user_id, chat_id, title, messages, created_at) 
-        VALUES (?, ?, ?, ?, datetime('now'))
-    """, (session['user_id'], chat_id, title, json.dumps(conversation_history)))
+        SELECT COUNT(*) 
+        FROM chats 
+        WHERE user_id = ? AND chat_id = ?
+    """, (session['user_id'], chat_id))
+    exists = cursor.fetchone()[0] > 0
+
+    if exists:
+        # Update existing chat
+        cursor.execute("""
+            UPDATE chats 
+            SET messages = ?, created_at = datetime('now') 
+            WHERE user_id = ? AND chat_id = ?
+        """, (json.dumps(conversation_history), session['user_id'], chat_id))
+    else:
+        # Insert new chat
+        cursor.execute("""
+            INSERT INTO chats (user_id, chat_id, title, messages, created_at) 
+            VALUES (?, ?, ?, ?, datetime('now'))
+        """, (session['user_id'], chat_id, title, json.dumps(conversation_history)))
+    
     conn.commit()
     conn.close()
     
@@ -235,6 +255,7 @@ def chat():
         "reply": reply,
         "chatId": chat_id
     })
+
 
 @app.route('/get_chat_history', methods=['GET'])
 def get_chat_history():
