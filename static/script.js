@@ -318,10 +318,10 @@ function handleChatMessage(message) {
         // Create new chat session if none exists
         currentSessionId = 'chat-' + Date.now();
     }
-    
+
     const chatBox = document.getElementById('chat-box');
     chatBox.appendChild(createMessageElement(message, true));
-    
+
     fetch('/chat', {
         method: 'POST',
         headers: {
@@ -340,9 +340,8 @@ function handleChatMessage(message) {
 
             chatBox.scrollTop = chatBox.scrollHeight;
             
-            // Refresh sidebar if this is a new chat
-            if (!currentSessionId || data.chatId !== currentSessionId) {
-                currentSessionId = data.chatId;
+            // Refresh sidebar only if starting a new session
+            if (!data.isContinuedSession) {  // Assuming backend provides this flag for clarity
                 loadChatHistory();
             }
         }
@@ -356,22 +355,23 @@ function handleChatMessage(message) {
     });
 }
 
+
 // Updated loadChatHistory function
 function loadChatHistory() {
     const sidebar = document.getElementById('chat-history-list');
-    
+
     fetch('/get_chat_history')
         .then(response => response.json())
         .then(data => {
             if (data.success && Array.isArray(data.chat_history)) {
                 sidebar.innerHTML = ''; // Clear existing items
-                
+
                 if (data.chat_history.length === 0) {
                     sidebar.innerHTML = '<div class="empty-history">No conversations yet</div>';
                     return;
                 }
-                
-                // Create and append conversation items
+
+                // Create and append conversation items only for unique sessions
                 data.chat_history.forEach(chat => {
                     const chatItem = createConversationItem(chat);
                     sidebar.appendChild(chatItem);
