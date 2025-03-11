@@ -10,9 +10,12 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this to a secure secret key
 
-# Explicitly use the Hugging Face token
-huggingface_token = "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"  # Replace with your actual Hugging Face token
-login(token=huggingface_token)
+# Authenticate with Hugging Face using the environment variable
+huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
+if huggingface_token:
+    login(token=huggingface_token)
+else:
+    raise ValueError("Hugging Face token not found in environment variables.")
 
 class MedicalAssistant:
     def __init__(self, model_name="meta-llama/Llama-3.2-1B-Instruct", device="cuda"):
