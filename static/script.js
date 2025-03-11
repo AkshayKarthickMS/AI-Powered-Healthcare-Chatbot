@@ -1,3 +1,56 @@
+
+
+// Speech-to-text functionality
+const micButton = document.getElementById('mic-button');
+const userInput = document.getElementById('user-input');
+
+let recognition = null;
+
+// Check if the browser supports the Web Speech API
+if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = true; // Keep listening until manually stopped
+    recognition.interimResults = false; // Only final results
+    recognition.lang = 'en-US'; // Set language
+
+    recognition.onstart = () => {
+        micButton.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        micButton.style.backgroundColor = '#dc2626'; // Change button color when active
+    };
+
+    recognition.onend = () => {
+        micButton.innerHTML = '<i class="fas fa-microphone"></i>';
+        micButton.style.backgroundColor = ''; // Reset button color
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userInput.value = transcript; // Set the transcribed text to the input field
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        showErrorMessage('Speech recognition failed. Please try again.');
+    };
+} else {
+    // Hide the microphone button if the browser doesn't support speech recognition
+    micButton.style.display = 'none';
+    console.warn('Speech recognition not supported in this browser.');
+}
+
+// Start recognition when button is pressed, stop when released
+micButton.addEventListener('mousedown', () => {
+    if (recognition) {
+        recognition.start();
+    }
+});
+
+micButton.addEventListener('mouseup', () => {
+    if (recognition) {
+        recognition.stop();
+    }
+});
+
 // Global variables for session management
 let currentSessionId = null;
 let currentChatHistory = [];

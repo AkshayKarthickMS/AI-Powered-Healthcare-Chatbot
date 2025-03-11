@@ -1,3 +1,18 @@
+.speaker-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #4299e1;
+    font-size: 16px;
+    margin-left: 8px;
+    transition: color 0.2s ease-in-out;
+}
+
+.speaker-button:hover {
+    color: #2563eb;
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -361,4 +376,51 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
+}
+
+/* Add this to your existing CSS */
+#mic-button {
+    background-color: #3b82f6;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: background-color 0.2s ease;
+}
+
+#mic-button:hover {
+    background-color: #2563eb;
+}
+
+#mic-button i {
+    font-size: 16px;
+}
+
+/* Add this to your existing CSS */
+#upload-status {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#status-message {
+    font-size: 14px;
+    color: #3b82f6;
 }

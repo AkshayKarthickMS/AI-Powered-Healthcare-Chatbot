@@ -4,13 +4,47 @@ from uuid import uuid4
 import sqlite3
 import os
 import json
-import requests
-from datetime import datetime
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this to a secure secret key
 
-MODEL_URL = "https://54e7-2401-4900-4de1-7b2f-c5c9-dbde-a9e2-3ea.ngrok-free.app/v1/chat/completions"
+class MedicalAssistant:
+    def __init__(self, model_name="meta-llama/Llama-3.2-1B-Instruct", device="cuda"):
+        self.device = device
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+        self.sys_message = ''' 
+        You are Dr. Akshay Karthick (virtual doctor), a compassionate and concise doctor. Respond to patient queries with empathetical words and warmth, using 1-2 complete sentences. Ask 1-2 questions at a time to keep the conversation focused. Offer virtual medications when appropriate and suggest physical visits only in rare cases when patient demands. If any questions apart from medical queries are asked, respond like 'I'm a doctor, I can't answer those questions. Always respond without exceeding 50 words limit. Make the conversation more engaging and friendly, dont ask any system confirmations like (this is a mid termination token do you want to end conversation.) this.
+        '''
+
+    def format_prompt(self, question):
+        messages = [
+            {"role": "system", "content": self.sys_message},
+            {"role": "user", "content": question}
+        ]
+        prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        return prompt
+
+    def generate_response(self, question, max_new_tokens=512):
+        prompt = self.format_prompt(question)
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=0.8,  # Set temperature
+                top_k=40,  # Top-k sampling
+                top_p=0.95,  # Top-p sampling
+                repetition_penalty=1.1,  # Repeat penalty
+                do_sample=True  # Enable sampling
+            )
+        answer = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0].strip()
+        return answer
+
+# Initialize the MedicalAssistant
+assistant = MedicalAssistant()
 
 def init_db():
     if not os.path.exists('chatbot.db'):
@@ -49,38 +83,12 @@ def update_db():
 
 update_db()
 
-def chat_with_model(user_input, conversation_history):
-    if len(conversation_history) == 0:
-        conversation_history.append({
-            "role": "system", 
-            "content": "You are Dr. Akshay Karthick, a compassionate and concise doctor. Respond to patient queries with empathy and warmth, using 1-2 complete sentences. Ask only 1-2 questions at a time to keep the conversation focused. Offer virtual medications when appropriate and suggest physical visits only in rare cases. If any questions apart from medical queries are asked, respond like 'I'm a doctor, I can't answer those questions.' Always respond without exceeding 50 words limit."
-        })
+def chat_with_model(user_input):
+    # Generate response using the MedicalAssistant
+    reply = assistant.generate_response(user_input)
     
-    conversation_history.append({"role": "user", "content": user_input})
-    
-    payload = {
-        "model": "llama-3.2-3b-instruct",
-        "messages": conversation_history,
-        "temperature": 0.8,
-        "max_tokens": 100,
-        "top_k": 40,
-        "repeat_penalty": 1.1,
-        "top_p": 0.95,
-        "min_p": 0.05,
-    }
-    headers = {"Content-Type": "application/json"}
-
-    try:
-        response = requests.post(MODEL_URL, json=payload, headers=headers)
-        response.raise_for_status()
-        model_reply = response.json().get('choices', [{}])[0].get('message', {})
-        if 'content' in model_reply:
-            conversation_history.append(model_reply)
-            return model_reply['content']
-        else:
-            return "I'm having trouble understanding your request. Can you please rephrase it?"
-    except requests.RequestException as e:
-        return f"An error occurred: {e}"
+    # Return only the assistant's response
+    return reply
 
 @app.route('/')
 def home():
@@ -189,8 +197,6 @@ def set_current_chat():
         return jsonify({"success": True})
     return jsonify({"success": False, "message": "Chat not found"}), 404
 
-
-
 @app.route('/chat', methods=['POST'])
 def chat():
     if 'user_id' not in session:
@@ -199,63 +205,47 @@ def chat():
     data = request.get_json()
     user_input = data.get('message')
     chat_id = data.get('chatId') or session.get('current_chat_id')
-    
+
     # Get or create conversation history
     conn = sqlite3.connect('chatbot.db')
     cursor = conn.cursor()
     
     if not chat_id:
-        # New chat
-        chat_id = str(uuid4())
+        chat_id = str(uuid4())  # Generate new chat ID
         session['current_chat_id'] = chat_id
         conversation_history = []
     else:
-        # Fetch existing conversation history for this chat_id
-        cursor.execute("""
-            SELECT messages 
-            FROM chats 
-            WHERE user_id = ? AND chat_id = ?
-        """, (session['user_id'], chat_id))
+        cursor.execute("SELECT messages FROM chats WHERE user_id = ? AND chat_id = ?", 
+                       (session['user_id'], chat_id))
         result = cursor.fetchone()
         conversation_history = json.loads(result[0]) if result else []
 
-    # Get the response from the model
-    reply = chat_with_model(user_input, conversation_history)
+    # Get the model response
+    reply = chat_with_model(user_input)
     
-    # Save the updated conversation history
-    title = user_input[:30] + "..." if len(user_input) > 30 else user_input
+    # Store only the model response in the conversation history
+    conversation_history.append({"role": "assistant", "content": reply})
 
     # Check if chat already exists
-    cursor.execute("""
-        SELECT COUNT(*) 
-        FROM chats 
-        WHERE user_id = ? AND chat_id = ?
-    """, (session['user_id'], chat_id))
+    cursor.execute("SELECT COUNT(*) FROM chats WHERE user_id = ? AND chat_id = ?", 
+                   (session['user_id'], chat_id))
     exists = cursor.fetchone()[0] > 0
 
     if exists:
-        # Update existing chat
-        cursor.execute("""
-            UPDATE chats 
-            SET messages = ?, created_at = datetime('now') 
-            WHERE user_id = ? AND chat_id = ?
-        """, (json.dumps(conversation_history), session['user_id'], chat_id))
+        cursor.execute("UPDATE chats SET messages = ?, created_at = datetime('now') WHERE user_id = ? AND chat_id = ?", 
+                       (json.dumps(conversation_history), session['user_id'], chat_id))
     else:
-        # Insert new chat
-        cursor.execute("""
-            INSERT INTO chats (user_id, chat_id, title, messages, created_at) 
-            VALUES (?, ?, ?, ?, datetime('now'))
-        """, (session['user_id'], chat_id, title, json.dumps(conversation_history)))
-    
+        cursor.execute("INSERT INTO chats (user_id, chat_id, messages, created_at) VALUES (?, ?, ?, datetime('now'))", 
+                       (session['user_id'], chat_id, json.dumps(conversation_history)))
+
     conn.commit()
     conn.close()
     
+    # Return only the assistant's response
     return jsonify({
         "success": True,
-        "reply": reply,
-        "chatId": chat_id
+        "reply": reply
     })
-
 
 @app.route('/get_chat_history', methods=['GET'])
 def get_chat_history():
@@ -284,13 +274,11 @@ def get_chat_history():
 
     return jsonify({"success": True, "chat_history": chat_history})
 
-# ... (rest of the routes remain the same)
-
 @app.route('/new_chat', methods=['POST'])
 def new_chat():
     session['conversation_history'] = []
     session.pop('current_chat_id', None)
     return jsonify({"success": True, "message": "New chat started"})
-
+        
 if __name__ == '__main__':
     app.run(debug=True)
