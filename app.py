@@ -6,6 +6,7 @@ import os
 import json
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from huggingface_hub import login  # Import the login function
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this to a secure secret key
