@@ -2,6 +2,5 @@ Flask==3.0.3
 requests==2.32.3
 gunicorn==23.0.0
 Werkzeug==3.0.6
-sqlite3==0.0.1
 torch==2.5.1
 transformers==4.40.2
